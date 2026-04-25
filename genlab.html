@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenLab | Innovative Lab Solutions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cream: #F5F0EB;
+            --primary-blue: #2F2FE4;
+            --deep-blue: #162E93;
+            --navy: #1A1953;
+            --near-black: #080616;
+            --accent-cyan: #4A9BE4;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: #fff;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--cream);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .loader-squares {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .square {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .square-1 {
+            width: 45vw;
+            height: 45vw;
+            max-width: 600px;
+            max-height: 600px;
+            background: var(--near-black);
+            z-index: 1;
+        }
+
+        .square-2 {
+            width: 38vw;
+            height: 38vw;
+            max-width: 500px;
+            max-height: 500px;
+            background: var(--navy);
+            z-index: 2;
+        }
+
+        .square-3 {
+            width: 31vw;
+            height: 31vw;
+            max-width: 400px;
+            max-height: 400px;
+            background: var(--deep-blue);
+            z-index: 3;
+        }
+
+        .square-4 {
+            width: 24vw;
+            height: 24vw;
+            max-width: 300px;
+            max-height: 300px;
+            background: linear-gradient(180deg, var(--primary-blue) 0%, var(--deep-blue) 100%);
+            z-index: 4;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .square-4::before {
+            content: '';
+            position: absolute;
+            inset: -20%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(79, 172, 254, 0.2) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 80%, rgba(0, 0, 0, 0.4) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            position: relative;
+            z-index: 5;
+            width: 60px;
+            height: 60px;
+            opacity: 0;
+        }
+
+        .loader-logo svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        }
+
+        /* ===== TRANSITION OVERLAY ===== */
+        .transition-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 8888;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .transition-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .trans-square {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .trans-square-1 {
+            width: 120vmax;
+            height: 120vmax;
+            background: var(--near-black);
+        }
+
+        .trans-square-2 {
+            width: 100vmax;
+            height: 100vmax;
+            background: var(--navy);
+        }
+
+        .trans-square-3 {
+            width: 80vmax;
+            height: 80vmax;
+            background: var(--deep-blue);
+        }
+
+        .trans-square-4 {
+            width: 60vmax;
+            height: 60vmax;
+            background: linear-gradient(180deg, var(--primary-blue) 0%, var(--deep-blue) 100%);
+            overflow: hidden;
+        }
+
+        .trans-square-4::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(79, 172, 254, 0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 80%, rgba(0, 0, 0, 0.4) 0%, transparent 60%);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            position: relative;
+            opacity: 0;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            min-height: 700px;
+            overflow: hidden;
+            background: var(--near-black);
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, var(--near-black) 0%, var(--navy) 30%, var(--deep-blue) 60%, var(--primary-blue) 100%);
+            z-index: 1;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="b"><feGaussianBlur stdDeviation="3"/></filter></defs><circle cx="20" cy="20" r="15" fill="%23162E93" filter="url(%23b)" opacity="0.6"/><circle cx="80" cy="40" r="20" fill="%232F2FE4" filter="url(%23b)" opacity="0.4"/><circle cx="40" cy="70" r="25" fill="%231A1953" filter="url(%23b)" opacity="0.5"/><circle cx="70" cy="80" r="18" fill="%234A9BE4" filter="url(%23b)" opacity="0.3"/></svg>');
+            background-size: cover;
+            opacity: 0.8;
+            mix-blend-mode: overlay;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(8, 6, 22, 0.5) 100%);
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 40px;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        .nav-left, .nav-right {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-left:hover, .nav-right:hover {
+            opacity: 0.7;
+        }
+
+        .menu-icon {
+            width: 14px;
+            height: 14px;
+            position: relative;
+        }
+
+        .menu-icon::before,
+        .menu-icon::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 1.5px;
+            background: white;
+        }
+
+        .menu-icon::before {
+            top: 4px;
+            transform: rotate(45deg);
+        }
+
+        .menu-icon::after {
+            bottom: 4px;
+            transform: rotate(-45deg);
+        }
+
+        .nav-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-logo {
+            width: 32px;
+            height: 32px;
+            fill: white;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+        }
+
+        .nav-brand {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* ===== HERO CONTENT ===== */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            padding: 100px 40px 40px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            pointer-events: none;
+        }
+
+        .hero-content > * {
+            pointer-events: auto;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding-bottom: 20px;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(60px, 12vw, 150px);
+            font-weight: 200;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: white;
+            position: relative;
+        }
+
+        .hero-title .tm {
+            font-size: 0.35em;
+            vertical-align: super;
+            font-weight: 300;
+            margin-left: 0.1em;
+        }
+
+        .request-access {
+            align-self: center;
+            padding: 12px 24px;
+            border-radius: 100px;
+            background: rgba(47, 47, 228, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(47, 47, 228, 0.3);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: white;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .request-access::before {
+            content: '•';
+            margin-right: 8px;
+            opacity: 0.7;
+            color: var(--primary-blue);
+        }
+
+        .request-access::after {
+            content: '•';
+            margin-left: 8px;
+            opacity: 0.7;
+            color: var(--primary-blue);
+        }
+
+        .request-access:hover {
+            background: rgba(47, 47, 228, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(47, 47, 228, 0.2);
+        }
+
+        .hero-mid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-top: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.6;
+        }
+
+        .hero-mid-right {
+            text-align: right;
+            max-width: 200px;
+        }
+
+        /* ===== 3D PRODUCT CONTAINER ===== */
+        .product-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            z-index: 5;
+            cursor: pointer; /* Add cursor effect on hover */
+        }
+
+        #product-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Fallback product image */
+        .product-fallback {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-fallback img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));
+        }
+
+        /* ===== HERO BOTTOM ===== */
+        .hero-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 20px;
+        }
+
+        .hero-bottom-left {
+            max-width: 320px;
+        }
+
+        .hero-bottom-left h2 {
+            font-size: clamp(24px, 3vw, 36px);
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-bottom-left p {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+        }
+
+        /* ===== FULLSCREEN MENU ===== */
+        .fullscreen-menu {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: var(--near-black);
+            transform: translateX(-100%);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 100px 60px;
+        }
+
+        .fullscreen-menu.open {
+            transform: translateX(0);
+        }
+
+        .menu-close {
+            position: absolute;
+            top: 24px;
+            left: 40px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-items {
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        .menu-item {
+            font-size: clamp(36px, 6vw, 72px);
+            font-weight: 200;
+            color: white;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: all 0.4s;
+            line-height: 1.3;
+            transform: translateX(-40px);
+            opacity: 0;
+        }
+
+        .fullscreen-menu.open .menu-item {
+            transform: translateX(0);
+            opacity: 0.4;
+        }
+
+        .menu-item:hover {
+            opacity: 1 !important;
+            padding-left: 20px;
+            color: var(--primary-blue);
+        }
+
+        /* ===== SECOND SECTION (Product Showcase) ===== */
+        .showcase {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            min-height: 700px;
+            background: linear-gradient(180deg, var(--near-black) 0%, var(--navy) 30%, var(--deep-blue) 60%, var(--primary-blue) 100%);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .showcase-bg {
+            position: absolute;
+            inset: 0;
+            opacity: 0.6;
+        }
+
+        .showcase-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(47, 47, 228, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(22, 46, 147, 0.3) 0%, transparent 50%);
+        }
+
+        .showcase-product {
+            position: relative;
+            z-index: 10;
+            width: 400px;
+            height: 400px;
+        }
+
+        /* ===== SCROLL INDICATOR ===== */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 3s forwards;
+        }
+
+        .scroll-indicator span {
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(47, 47, 228, 0.8), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { transform: scaleY(1); opacity: 0.5; }
+            50% { transform: scaleY(0.6); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .nav {
+                padding: 16px 20px;
+            }
+
+            .hero-content {
+                padding: 80px 20px 30px;
+            }
+
+            .hero-title {
+                font-size: 48px;
+            }
+
+            .request-access {
+                display: none;
+            }
+
+            .hero-mid {
+                font-size: 9px;
+            }
+
+            .hero-bottom-left h2 {
+                font-size: 20px;
+            }
+
+            .product-container {
+                width: 300px;
+                height: 300px;
+            }
+
+            .hero-bottom {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+        }
+
+        /* ===== UTILITY ===== */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOADING SCREEN ===== -->
+    <div class="loader" id="loader">
+        <div class="loader-squares">
+            <div class="square square-1"></div>
+            <div class="square square-2"></div>
+            <div class="square square-3"></div>
+            <div class="square square-4">
+                <div class="loader-logo" id="loaderLogo">
+                    <!-- YOUR LOGO SVG HERE - Replaced with GenLab Icon -->
+                    <svg width="60" height="60" viewBox="0 0 187 187" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M140.881 143.048C152.952 143.048 164.529 147.615 173.064 155.744C181.138 163.433 185.865 173.713 186.354 184.531C186.4 185.56 185.561 186.396 184.531 186.396H97.2295C96.2001 186.395 95.3608 185.56 95.4072 184.531C95.8957 173.713 100.623 163.433 108.696 155.744C117.232 147.615 128.81 143.048 140.881 143.048ZM1.86426 95.4072C12.6828 95.8957 22.9626 100.623 30.6514 108.696C38.7805 117.232 43.3476 128.809 43.3477 140.88C43.3477 152.951 38.7806 164.529 30.6514 173.064C22.9626 181.138 12.6828 185.865 1.86426 186.354C0.835878 186.4 1.66031e-06 185.561 0 184.531V97.2295C-7.40187e-08 96.2001 0.835877 95.3608 1.86426 95.4072ZM89.166 95.4072C90.1944 95.3608 91.0303 96.2001 91.0303 97.2295V184.531C91.0303 185.561 90.1951 186.4 89.167 186.354C78.3483 185.865 68.0678 181.138 60.3789 173.064C52.2497 164.529 47.6826 152.951 47.6826 140.88C47.6827 128.809 52.2498 117.232 60.3789 108.696C68.0677 100.623 78.3474 95.8958 89.166 95.4072ZM184.531 95.3652C185.561 95.3652 186.4 96.2003 186.354 97.2285C185.865 108.047 181.138 118.328 173.064 126.017C164.529 134.146 152.952 138.713 140.881 138.713C128.81 138.713 117.232 134.146 108.696 126.017C100.623 118.328 95.8956 108.047 95.4072 97.2285C95.3611 96.2004 96.2003 95.3653 97.2295 95.3652H184.531ZM45.5156 47.6826C57.5868 47.6827 69.1636 52.2498 77.6992 60.3789C85.7724 68.0677 90.4998 78.3474 90.9883 89.166C91.0347 90.1944 90.1954 91.0303 89.166 91.0303H1.86426C0.83483 91.0303 -0.00443373 90.1944 0.0419922 89.166C0.530447 78.3474 5.25794 68.0677 13.3311 60.3789C21.8668 52.2497 33.4443 47.6826 45.5156 47.6826ZM97.2295 0.0419922C108.048 0.530466 118.328 5.25785 126.017 13.3311C134.146 21.8667 138.713 33.4434 138.713 45.5146C138.713 57.586 134.146 69.1635 126.017 77.6992C118.328 85.7723 108.048 90.4988 97.2295 90.9873C96.2012 91.0337 95.3653 90.1954 95.3652 89.166V1.86426C95.3652 0.83483 96.2011 -0.00443374 97.2295 0.0419922ZM184.532 0.0419922C185.56 -0.00422343 186.396 0.834949 186.396 1.86426V89.166C186.395 90.1953 185.56 91.0335 184.532 90.9873C173.714 90.4989 163.433 85.7725 155.744 77.6992C147.615 69.1635 143.048 57.586 143.048 45.5146C143.048 33.4434 147.615 21.8667 155.744 13.3311C163.433 5.25769 173.713 0.530406 184.532 0.0419922ZM89.166 0C90.1953 -7.40114e-08 91.0345 0.835039 90.9883 1.86328C90.4999 12.6821 85.7726 22.9625 77.6992 30.6514C69.1636 38.7805 57.5868 43.3475 45.5156 43.3477C33.4443 43.3477 21.8668 38.7806 13.3311 30.6514C5.25775 22.9625 0.530404 12.682 0.0419922 1.86328C-0.00424737 0.835046 0.834935 7.40111e-08 1.86426 0H89.166Z" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TRANSITION OVERLAY ===== -->
+    <div class="transition-overlay" id="transitionOverlay">
+        <div class="trans-square trans-square-1"></div>
+        <div class="trans-square trans-square-2"></div>
+        <div class="trans-square trans-square-3"></div>
+        <div class="trans-square trans-square-4"></div>
+    </div>
+
+    <!-- ===== FULLSCREEN MENU ===== -->
+    <div class="fullscreen-menu" id="fullscreenMenu">
+        <div class="menu-close" onclick="toggleMenu()">
+            <span style="font-size: 16px;">×</span> CLOSE
+        </div>
+        <div class="menu-items">
+            <div class="menu-item" style="transition-delay: 0.1s;">Products</div>
+            <div class="menu-item" style="transition-delay: 0.2s;">Technology</div>
+            <div class="menu-item" style="transition-delay: 0.3s;">Research</div>
+            <div class="menu-item" style="transition-delay: 0.4s;">About</div>
+            <div class="menu-item" style="transition-delay: 0.5s;">Contact</div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content" id="mainContent">
+
+        <!-- ===== NAVIGATION ===== -->
+        <nav class="nav" id="mainNav">
+            <div class="nav-left" onclick="toggleMenu()">
+                <div class="menu-icon"></div>
+                MENU
+            </div>
+            <div class="nav-center">
+                <!-- YOUR LOGO SVG HERE - Replaced with GenLab Icon (white version) -->
+                <svg class="nav-logo" viewBox="0 0 187 187" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M140.881 143.048C152.952 143.048 164.529 147.615 173.064 155.744C181.138 163.433 185.865 173.713 186.354 184.531C186.4 185.56 185.561 186.396 184.531 186.396H97.2295C96.2001 186.395 95.3608 185.56 95.4072 184.531C95.8957 173.713 100.623 163.433 108.696 155.744C117.232 147.615 128.81 143.048 140.881 143.048ZM1.86426 95.4072C12.6828 95.8957 22.9626 100.623 30.6514 108.696C38.7805 117.232 43.3476 128.809 43.3477 140.88C43.3477 152.951 38.7806 164.529 30.6514 173.064C22.9626 181.138 12.6828 185.865 1.86426 186.354C0.835878 186.4 1.66031e-06 185.561 0 184.531V97.2295C-7.40187e-08 96.2001 0.835877 95.3608 1.86426 95.4072ZM89.166 95.4072C90.1944 95.3608 91.0303 96.2001 91.0303 97.2295V184.531C91.0303 185.561 90.1951 186.4 89.167 186.354C78.3483 185.865 68.0678 181.138 60.3789 173.064C52.2497 164.529 47.6826 152.951 47.6826 140.88C47.6827 128.809 52.2498 117.232 60.3789 108.696C68.0677 100.623 78.3474 95.8958 89.166 95.4072ZM184.531 95.3652C185.561 95.3652 186.4 96.2003 186.354 97.2285C185.865 108.047 181.138 118.328 173.064 126.017C164.529 134.146 152.952 138.713 140.881 138.713C128.81 138.713 117.232 134.146 108.696 126.017C100.623 118.328 95.8956 108.047 95.4072 97.2285C95.3611 96.2004 96.2003 95.3653 97.2295 95.3652H184.531ZM45.5156 47.6826C57.5868 47.6827 69.1636 52.2498 77.6992 60.3789C85.7724 68.0677 90.4998 78.3474 90.9883 89.166C91.0347 90.1944 90.1954 91.0303 89.166 91.0303H1.86426C0.83483 91.0303 -0.00443373 90.1944 0.0419922 89.166C0.530447 78.3474 5.25794 68.0677 13.3311 60.3789C21.8668 52.2497 33.4443 47.6826 45.5156 47.6826ZM97.2295 0.0419922C108.048 0.530466 118.328 5.25785 126.017 13.3311C134.146 21.8667 138.713 33.4434 138.713 45.5146C138.713 57.586 134.146 69.1635 126.017 77.6992C118.328 85.7723 108.048 90.4988 97.2295 90.9873C96.2012 91.0337 95.3653 90.1954 95.3652 89.166V1.86426C95.3652 0.83483 96.2011 -0.00443374 97.2295 0.0419922ZM184.532 0.0419922C185.56 -0.00422343 186.396 0.834949 186.396 1.86426V89.166C186.395 90.1953 185.56 91.0335 184.532 90.9873C173.714 90.4989 163.433 85.7725 155.744 77.6992C147.615 69.1635 143.048 57.586 143.048 45.5146C143.048 33.4434 147.615 21.8667 155.744 13.3311C163.433 5.25769 173.713 0.530406 184.532 0.0419922ZM89.166 0C90.1953 -7.40114e-08 91.0345 0.835039 90.9883 1.86328C90.4999 12.6821 85.7726 22.9625 77.6992 30.6514C69.1636 38.7805 57.5868 43.3475 45.5156 43.3477C33.4443 43.3477 21.8668 38.7806 13.3311 30.6514C5.25775 22.9625 0.530404 12.682 0.0419922 1.86328C-0.00424737 0.835046 0.834935 7.40111e-08 1.86426 0H89.166Z" fill="white"/>
+                    </svg>
+                <span class="nav-brand">GenLab</span>
+            </div>
+            <div class="nav-right">CONTACT US</div>
+        </nav>
+
+        <!-- ===== HERO SECTION ===== -->
+        <section class="hero" id="hero">
+            <div class="hero-bg"></div>
+            
+            <div class="product-container" id="productContainer">
+                <canvas id="productCanvas"></canvas>
+                <div class="product-fallback" id="productFallback">
+                    <!-- Fallback: Add your product image here -->
+                    <img src="GenLab Icon.svg" alt">
+                </div>
+            </div>
+
+            <div class="hero-content">
+                <div class="hero-top">
+                    <h1 class="hero-title" id="heroTitle">
+                        Gen<span style="font-weight: 300;">Lab</span><span class="tm">™</span>
+                    </h1>
+                    <button class="request-access" id="requestBtn">REQUEST ACCESS</button>
+                </div>
+
+                <div class="hero-mid">
+                    <div>LABORATORY, REINVENTED.</div>
+                    <div class="hero-mid-right">
+                        ADVANCED ANALYTICS —<br>
+                        POWERED BY AI AND AUTOMATION.
+                    </div>
+                </div>
+
+                <div class="hero-bottom">
+                    <div class="hero-bottom-left">
+                        <h2>For Science.<br>For Innovation.</h2>
+                        <p>CUTTING-EDGE TECHNOLOGY<br>
+                        THAT ACCELERATES RESEARCH WITH<br>
+                        PRECISION AND EFFICIENCY.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-indicator">
+                <span>Scroll</span>
+                <div class="scroll-line"></div>
+            </div>
+        </section>
+
+        <!-- ===== SHOWCASE SECTION (for scroll transition demo) ===== -->
+        <section class="showcase" id="showcase">
+            <div class="showcase-bg"></div>
+            <div class="showcase-product" id="showcaseProduct">
+                <!-- Second instance of product for continuous rotation -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION - Replace with your assets
+        // ==========================================
+        const CONFIG = {
+            // Replace these with your actual logo SVG paths
+            logoSvg: null, // Set to your SVG string or keep null for default
+            
+            // Product texture/logo for 3D model
+            productLogoTexture: null, // Canvas element or image URL for embossed logo
+            
+            // Colors - Updated to blue palette
+            productColor: 0x1A1953,  // Navy blue
+            productRoughness: 0.7,
+            productMetalness: 0.3,
+            accentColor: 0x2F2FE4,   // Primary blue
+        };
+
+        // ==========================================
+        // LOADING ANIMATION
+        // ==========================================
+        const loader = document.getElementById('loader');
+        const loaderLogo = document.getElementById('loaderLogo');
+        const squares = document.querySelectorAll('.square');
+        const mainContent = document.getElementById('mainContent');
+        const mainNav = document.getElementById('mainNav');
+
+        function playLoader() {
+            const tl = gsap.timeline();
+
+            // Initial state
+            gsap.set(squares, { scale: 0, opacity: 0 });
+            gsap.set(loaderLogo, { scale: 0.5, opacity: 0 });
+
+            // Animate squares in with stagger
+            tl.to(squares, {
+                scale: 1,
+                opacity: 1,
+                duration: 1.2,
+                stagger: 0.08,
+                ease: "cubic-bezier(0.16, 1, 0.3, 1)"
+            })
+            .to(loaderLogo, {
+                scale: 1,
+                opacity: 1,
+                duration: 0.6,
+                ease: "power2.out"
+            }, "-=0.4")
+            .to(loaderLogo, {
+                scale: 1.1,
+                duration: 0.3,
+                yoyo: true,
+                repeat: 1,
+                ease: "power2.inOut"
+            })
+            .to(squares, {
+                scale: 0,
+                duration: 0.8,
+                stagger: 0.05,
+                ease: "power2.inOut"
+            }, "+=0.3")
+            .to(loader, {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                    loader.style.display = 'none';
+                    revealHero();
+                }
+            }, "-=0.3");
+        }
+
+        // ==========================================
+        // HERO REVEAL
+        // ==========================================
+        function revealHero() {
+            mainContent.style.opacity = '1';
+            
+            const tl = gsap.timeline();
+
+            // Nav fade in
+            tl.to(mainNav, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power3.out"
+            });
+
+            // Title reveal with clip-path
+            tl.fromTo('#heroTitle', 
+                { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
+                { clipPath: 'inset(0 0% 0 0)', opacity: 1, duration: 1, ease: "power3.out" },
+                "-=0.4"
+            );
+
+            // Request access button
+            tl.fromTo('#requestBtn',
+                { opacity: 0, x: 30 },
+                { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" },
+                "-=0.6"
+            );
+
+            // Mid text
+            tl.fromTo('.hero-mid > div',
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" },
+                "-=0.4"
+            );
+
+            // Bottom content
+            tl.fromTo('.hero-bottom-left > *',
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out" },
+                "-=0.3"
+            );
+
+            // Product container
+            tl.fromTo('#productContainer',
+                { opacity: 0, scale: 0.8 },
+                { opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" },
+                "-=1"
+            );
+        }
+
+        // ==========================================
+        // THREE.JS 3D PRODUCT
+        // ==========================================
+        let scene, camera, renderer, productMesh, productGroup;
+        let mouseX = 0, mouseY = 0;
+        let targetRotation = 0;
+        let isHovering = false;
+
+        function initThreeJS() {
+            const canvas = document.getElementById('productCanvas');
+            const container = document.getElementById('productContainer');
+
+            // Scene
+            scene = new THREE.Scene();
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            camera.position.set(0, 0, 6);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas, 
+                antialias: true, 
+                alpha: true 
+            });
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+
+            // Lighting setup - Blue tech aesthetic
+            const ambientLight = new THREE.AmbientLight(0x1a1a3e, 0.5);
+            scene.add(ambientLight);
+
+            const keyLight = new THREE.DirectionalLight(0x4facfe, 1.5);
+            keyLight.position.set(5, 5, 5);
+            keyLight.castShadow = true;
+            keyLight.shadow.mapSize.width = 2048;
+            keyLight.shadow.mapSize.height = 2048;
+            keyLight.shadow.camera.near = 0.1;
+            keyLight.shadow.camera.far = 20;
+            keyLight.shadow.bias = -0.001;
+            scene.add(keyLight);
+
+            const fillLight = new THREE.DirectionalLight(0x2F2FE4, 0.6);
+            fillLight.position.set(-5, 0, 3);
+            scene.add(fillLight);
+
+            const rimLight = new THREE.DirectionalLight(0x00f2fe, 0.8);
+            rimLight.position.set(0, 3, -5);
+            scene.add(rimLight);
+
+            const bottomLight = new THREE.PointLight(0x162E93, 0.4);
+            bottomLight.position.set(0, -3, 2);
+            scene.add(bottomLight);
+
+            // Create product geometry
+            createProduct();
+
+            // Start animation
+            animate();
+
+            // Mouse interaction
+            container.addEventListener('mousemove', onMouseMove);
+            container.addEventListener('mouseenter', () => isHovering = true);
+            container.addEventListener('mouseleave', () => isHovering = false);
+
+            // Resize handler
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createProduct() {
+            productGroup = new THREE.Group();
+
+            // Instead of tablet, create the logo as the main 3D object
+            createEmbossedLogo();
+
+            scene.add(productGroup);
+        }
+
+        function createEmbossedLogo() {
+            // Create logo texture from GenLab Icon SVG - White on dark background
+            const logoCanvas = document.createElement('canvas');
+            logoCanvas.width = 512;
+            logoCanvas.height = 512;
+            const ctx = logoCanvas.getContext('2d');
+
+            // Clear canvas with dark background
+            ctx.fillStyle = '#0f0f2e';
+            ctx.fillRect(0, 0, 512, 512);
+            
+            // Draw GenLab Icon SVG path (scaled and centered)
+            ctx.save();
+            ctx.translate(256, 256);
+            ctx.scale(1.2, 1.2); // Scale to fit
+            
+            // Set fill to white for visibility
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            
+            // GenLab Icon path data
+            const pathData = "M140.881 143.048C152.952 143.048 164.529 147.615 173.064 155.744C181.138 163.433 185.865 173.713 186.354 184.531C186.4 185.56 185.561 186.396 184.531 186.396H97.2295C96.2001 186.395 95.3608 185.56 95.4072 184.531C95.8957 173.713 100.623 163.433 108.696 155.744C117.232 147.615 128.81 143.048 140.881 143.048ZM1.86426 95.4072C12.6828 95.8957 22.9626 100.623 30.6514 108.696C38.7805 117.232 43.3476 128.809 43.3477 140.88C43.3477 152.951 38.7806 164.529 30.6514 173.064C22.9626 181.138 12.6828 185.865 1.86426 186.354C0.835878 186.4 1.66031e-06 185.561 0 184.531V97.2295C-7.40187e-08 96.2001 0.835877 95.3608 1.86426 95.4072ZM89.166 95.4072C90.1944 95.3608 91.0303 96.2001 91.0303 97.2295V184.531C91.0303 185.561 90.1951 186.4 89.167 186.354C78.3483 185.865 68.0678 181.138 60.3789 173.064C52.2497 164.529 47.6826 152.951 47.6826 140.88C47.6827 128.809 52.2498 117.232 60.3789 108.696C68.0677 100.623 78.3474 95.8958 89.166 95.4072ZM184.531 95.3652C185.561 95.3652 186.4 96.2003 186.354 97.2285C185.865 108.047 181.138 118.328 173.064 126.017C164.529 134.146 152.952 138.713 140.881 138.713C128.81 138.713 117.232 134.146 108.696 126.017C100.623 118.328 95.8956 108.047 95.4072 97.2285C95.3611 96.2004 96.2003 95.3653 97.2295 95.3652H184.531ZM45.5156 47.6826C57.5868 47.6827 69.1636 52.2498 77.6992 60.3789C85.7724 68.0677 90.4998 78.3474 90.9883 89.166C91.0347 90.1944 90.1954 91.0303 89.166 91.0303H1.86426C0.83483 91.0303 -0.00443373 90.1944 0.0419922 89.166C0.530447 78.3474 5.25794 68.0677 13.3311 60.3789C21.8668 52.2497 33.4443 47.6826 45.5156 47.6826ZM97.2295 0.0419922C108.048 0.530466 118.328 5.25785 126.017 13.3311C134.146 21.8667 138.713 33.4434 138.713 45.5146C138.713 57.586 134.146 69.1635 126.017 77.6992C118.328 85.7723 108.048 90.4988 97.2295 90.9873C96.2012 91.0337 95.3653 90.1954 95.3652 89.166V1.86426C95.3652 0.83483 96.2011 -0.00443374 97.2295 0.0419922ZM184.532 0.0419922C185.56 -0.00422343 186.396 0.834949 186.396 1.86426V89.166C186.395 90.1953 185.56 91.0335 184.532 90.9873C173.714 90.4989 163.433 85.7725 155.744 77.6992C147.615 69.1635 143.048 57.586 143.048 45.5146C143.048 33.4434 147.615 21.8667 155.744 13.3311C163.433 5.25769 173.713 0.530406 184.532 0.0419922ZM89.166 0C90.1953 -7.40114e-08 91.0345 0.835039 90.9883 1.86328C90.4999 12.6821 85.7726 22.9625 77.6992 30.6514C69.1636 38.7805 57.5868 43.3475 45.5156 43.3477C33.4443 43.3477 21.8668 38.7806 13.3311 30.6514C5.25775 22.9625 0.530404 12.682 0.0419922 1.86328C-0.00424737 0.835046 0.834935 7.40111e-08 1.86426 0H89.166Z";
+            
+            // Use SVG image for better rendering
+            const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 187 187" width="187" height="187"><path d="${pathData}" fill="white"/></svg>`;
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 128, 128); // Center the image
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
+            
+            ctx.restore();
+
+            const logoTexture = new THREE.CanvasTexture(logoCanvas);
+            
+            // Create a plane for the logo
+            const logoGeometry = new THREE.PlaneGeometry(3, 3);
+            const logoMaterial = new THREE.MeshStandardMaterial({
+                map: logoTexture,
+                transparent: true,
+                opacity: 0.9,
+                roughness: 0.5,
+                metalness: 0.3,
+                emissive: 0x2F2FE4,
+                emissiveIntensity: 0.1,
+                side: THREE.DoubleSide
+            });
+
+            const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+            logoMesh.position.z = 0;
+            productGroup.add(logoMesh);
+
+            // Add subtle glow effect around logo
+            const glowGeometry = new THREE.CircleGeometry(1.8, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x2F2FE4,
+                transparent: true,
+                opacity: 0.1,
+                side: THREE.DoubleSide
+            });
+            const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+            glowMesh.position.z = -0.01;
+            productGroup.add(glowMesh);
+        }
+
+        const depth = 0.6; // Defined for logo positioning
+
+        function onMouseMove(event) {
+            const rect = document.getElementById('productContainer').getBoundingClientRect();
+            mouseX = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+            mouseY = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('productContainer');
+            camera.aspect = 1;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+        }
+
+        let time = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            if (productGroup) {
+                // Continuous rotation
+                const baseSpeed = isHovering ? 0.008 : 0.003;
+                productGroup.rotation.y += baseSpeed;
+                
+                // Mouse influence
+                const targetX = mouseY * 0.3;
+                const targetZ = mouseX * 0.3;
+                
+                productGroup.rotation.x += (targetX - productGroup.rotation.x) * 0.05;
+                productGroup.rotation.z += (targetZ - productGroup.rotation.z) * 0.05;
+
+                // Floating animation
+                productGroup.position.y = Math.sin(time) * 0.1;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // ==========================================
+        // MENU TOGGLE
+        // ==========================================
+        function toggleMenu() {
+            const menu = document.getElementById('fullscreenMenu');
+            menu.classList.toggle('open');
+        }
+
+        // ==========================================
+        // SCROLL ANIMATIONS
+        // ==========================================
+        function initScrollAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Parallax for hero background
+            gsap.to('.hero-bg', {
+                yPercent: 30,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+
+            // Fade out hero content on scroll
+            gsap.to('.hero-content', {
+                opacity: 0,
+                y: -100,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: "60% top",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+
+            // Showcase section reveal
+            gsap.from('.showcase', {
+                opacity: 0,
+                scrollTrigger: {
+                    trigger: '.showcase',
+                    start: "top 80%",
+                    end: "top 30%",
+                    scrub: true
+                }
+            });
+
+            // Transition effect on scroll
+            ScrollTrigger.create({
+                trigger: '.hero',
+                start: "bottom bottom",
+                end: "bottom top",
+                onEnter: () => playTransition(),
+                onLeaveBack: () => reverseTransition()
+            });
+        }
+
+        // ==========================================
+        // TRANSITION EFFECT
+        // ==========================================
+        function playTransition() {
+            const overlay = document.getElementById('transitionOverlay');
+            const squares = overlay.querySelectorAll('.trans-square');
+            
+            overlay.classList.add('active');
+            
+            gsap.fromTo(squares, 
+                { scale: 0, opacity: 0 },
+                { 
+                    scale: 1, 
+                    opacity: 1, 
+                    duration: 0.6, 
+                    stagger: 0.05,
+                    ease: "power2.inOut"
+                }
+            );
+
+            gsap.to(squares, {
+                scale: 2,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.05,
+                delay: 0.4,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    overlay.classList.remove('active');
+                }
+            });
+        }
+
+        function reverseTransition() {
+            // Optional: reverse animation when scrolling back up
+        }
+
+        // ==========================================
+        // REQUEST ACCESS MODAL
+        // ==========================================
+        document.getElementById('requestBtn').addEventListener('click', function() {
+            // Create modal dynamically
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                inset: 0;
+                z-index: 3000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(8, 6, 22, 0.7);
+                backdrop-filter: blur(10px);
+                opacity: 0;
+                transition: opacity 0.4s;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: var(--cream);
+                    padding: 48px;
+                    border-radius: 16px;
+                    max-width: 480px;
+                    width: 90%;
+                    transform: scale(0.9);
+                    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                ">
+                    <h3 style="font-size: 28px; font-weight: 300; color: var(--primary-blue); margin-bottom: 8px;">Request Access</h3>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 24px;">Join the waitlist for early access to GenLab technology.</p>
+                    <input type="email" placeholder="Enter your email" style="
+                        width: 100%;
+                        padding: 14px 18px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        margin-bottom: 16px;
+                        font-family: inherit;
+                        outline: none;
+                        transition: border-color 0.3s;
+                    " onfocus="this.style.borderColor='var(--primary-blue)'" onblur="this.style.borderColor='#ddd'">
+                    <button style="
+                        width: 100%;
+                        padding: 14px;
+                        background: var(--primary-blue);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 13px;
+                        font-weight: 500;
+                        letter-spacing: 0.1em;
+                        text-transform: uppercase;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                    " onmouseover="this.style.background='var(--deep-blue)'" onmouseout="this.style.background='var(--primary-blue)'">Submit Request</button>
+                    <button onclick="this.closest('.modal-overlay').remove()" style="
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        background: none;
+                        border: none;
+                        font-size: 24px;
+                        color: #999;
+                        cursor: pointer;
+                    ">×</button>
+                </div>
+            `;
+            
+            modal.classList.add('modal-overlay');
+            document.body.appendChild(modal);
+            
+            requestAnimationFrame(() => {
+                modal.style.opacity = '1';
+                modal.querySelector('div').style.transform = 'scale(1)';
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+        });
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check for WebGL support
+            const canvas = document.createElement('canvas');
+            const hasWebGL = !!(
+                window.WebGLRenderingContext && 
+                (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+            );
+
+            if (hasWebGL) {
+                initThreeJS();
+            } else {
+                document.getElementById('productCanvas').style.display = 'none';
+                document.getElementById('productFallback').style.display = 'flex';
+            }
+
+            // Start loader
+            setTimeout(playLoader, 300);
+
+            // Initialize scroll animations
+            initScrollAnimations();
+        });
+
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>
